@@ -37,6 +37,55 @@ Real-Time Risk Scoring: Dynamic result cards displaying fraud probability percen
 Model Interpretability: Feature importance bar charts highlighting key fraud indicators (such as V14, V10, V12, V17, V4).
 🏛️ System Architecture
 Mermaid diagram
+4. System Architecture & Design
+
+### 4.1 High-Level Architecture Flowchart
+
+
+flowchart TD
+    subgraph Ingestion Layer
+        A[Dataset creditcard.csv] --> B{LFS Pointer Check}
+        B -->|Unresolved Pointer| C[Git LFS Media Downloader / Generator]
+        B -->|Valid CSV| D[Deduplication & Schema Validation]
+        C --> D
+    end
+
+ subgraph Data Partitioning & Preprocessing
+        D --> E[Stratified 80/20 Train-Test Split]
+        E --> F[StandardScaler on X_train]
+        F --> G[X_train_scaled & X_test_scaled]
+        E --> H[Unscaled Features for Trees]
+    end
+
+subgraph Model Training
+        G --> I[Logistic Regression balanced]
+        H --> J[Random Forest Classifier balanced]
+    end
+
+subgraph Evaluation & Champion Selection
+        I --> K[Test Set Metrics Evaluation]
+        J --> K
+        K --> L[F1 & ROC-AUC Champion Selection]
+        L --> M[Random Forest Champion]
+    end
+
+subgraph Artifact Storage
+        M --> N[saved_models/ Directory]
+        N --> O[fraud_detection_all_models.pkl]
+        N --> P[scaler.pkl, metrics.pkl, etc.]
+        N --> Q[feature_importance.csv]
+    end
+
+subgraph Serving & UI
+        O --> R[Streamlit Web Application app.py]
+        Q --> R
+        R --> S[Real-Time Transaction Scoring]
+        R --> T[Analytics & KPI Cards]
+    end
+```
+
+
+
 📊 Dataset Specifications
 The system is configured around the standard European credit card fraud benchmark dataset:
 
