@@ -51,7 +51,8 @@ Web Interface: Streamlit
 ⚙️ Installation & Local Setup
 
 1. Create a virtual environment (Optional but Recommended)
-2.Bash
+2 .Clone:[https://github.com/bac-tech/Python-Machinelarning-ui-creditcard-fraud-project](https://github.com/bac-tech/Python-Machinelarning-ui-creditcard-fraud-project)
+Bash
 # Windows
 python -m venv venv
 venv\Scripts\activate
