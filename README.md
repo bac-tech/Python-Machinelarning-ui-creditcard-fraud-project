@@ -1,4 +1,4 @@
-#💳 Credit Card Fraud Detection System
+💳 Credit Card Fraud Detection System
 Python 3.9+FrameworkUI 
 License
 
@@ -9,7 +9,7 @@ Executive Overview
 Key Features
 System Architecture
 Dataset Specifications
-Project Directory Structure
+Project Structure
 Installation & Quickstart
 Model Training & Benchmarking
 Interactive Web Dashboard
@@ -37,55 +37,6 @@ Real-Time Risk Scoring: Dynamic result cards displaying fraud probability percen
 Model Interpretability: Feature importance bar charts highlighting key fraud indicators (such as V14, V10, V12, V17, V4).
 🏛️ System Architecture
 Mermaid diagram
-4. System Architecture & Design
-
-### 4.1 High-Level Architecture Flowchart
-
-
-flowchart TD
-    subgraph Ingestion Layer
-        A[Dataset creditcard.csv] --> B{LFS Pointer Check}
-        B -->|Unresolved Pointer| C[Git LFS Media Downloader / Generator]
-        B -->|Valid CSV| D[Deduplication & Schema Validation]
-        C --> D
-    end
-
- subgraph Data Partitioning & Preprocessing
-        D --> E[Stratified 80/20 Train-Test Split]
-        E --> F[StandardScaler on X_train]
-        F --> G[X_train_scaled & X_test_scaled]
-        E --> H[Unscaled Features for Trees]
-    end
-
-subgraph Model Training
-        G --> I[Logistic Regression balanced]
-        H --> J[Random Forest Classifier balanced]
-    end
-
-subgraph Evaluation & Champion Selection
-        I --> K[Test Set Metrics Evaluation]
-        J --> K
-        K --> L[F1 & ROC-AUC Champion Selection]
-        L --> M[Random Forest Champion]
-    end
-
-subgraph Artifact Storage
-        M --> N[saved_models/ Directory]
-        N --> O[fraud_detection_all_models.pkl]
-        N --> P[scaler.pkl, metrics.pkl, etc.]
-        N --> Q[feature_importance.csv]
-    end
-
-subgraph Serving & UI
-        O --> R[Streamlit Web Application app.py]
-        Q --> R
-        R --> S[Real-Time Transaction Scoring]
-        R --> T[Analytics & KPI Cards]
-    end
-```
-
-
-
 📊 Dataset Specifications
 The system is configured around the standard European credit card fraud benchmark dataset:
 
@@ -99,33 +50,33 @@ Class (Target):
 📁 Project Directory Structure
 
 Credit-Card-Fraud-Detection-System/
+├── .gitattributes
+├── .gitignore
+├── README.md
+├── requirements.txt
+│
 ├── Dataset/
-│   ├── creditcard.csv                 # Raw or benchmark transaction data
-│   └── generate_sample_data.py        # Dataset validation & synthetic generator utility
+│   └── creditcard.csv
 │
 ├── Model/
-│   ├── train.py                       # ML model training and evaluation pipeline
-│   └── saved_models/                  # Serialized model artifacts
-│       ├── fraud_detection_all_models.pkl
-│       ├── scaler.pkl
-│       ├── logistic_model.pkl
-│       ├── random_forest_model.pkl
+│   ├── Model_train.py
+│   ├── amount_distribution.png
+│   ├── fraud_vs_legitimate.png
+│   │
+│   └── saved_models/
 │       ├── best_model.pkl
+│       ├── feature_importance.csv
 │       ├── feature_names.pkl
+│       ├── fraud_detection_all_models.pkl
+│       ├── logistic_model.pkl
 │       ├── metrics.pkl
-│       └── feature_importance.csv
+│       ├── random_forest_model.pkl
+│       └── scaler.pkl
 │
-├── App/
-│   └── app.py                         # Streamlit dashboard implementation
-│
-├── app.py                             # Root runner entry point
-├── requirements.txt                   # Production dependency specifications
-├── README.md                          # Project documentation
-│
-└── docs/
-    ├── ARCHITECTURE.md                # System design & data flow documentation
-    ├── MODEL_REPORT.md                # Algorithmic benchmarks, cost matrix & evaluation
-    └── USER_GUIDE.md                  # Comprehensive user instructions & manual
+└── app/
+    └── app.py
+
+> The structure above reflects the current GitHub repository.
 🚀 Installation & Quickstart
 1. Clone or Open the Repository
 bash
@@ -149,7 +100,7 @@ To run the complete data preprocessing, training, and artifact serialization pip
 
 bash
 
-python Model/train.py
+python Model/Model_train.py
 Pipeline Execution Output:
 Loads and validates Dataset/creditcard.csv.
 Cleans duplicates and verifies 30 numerical input features.
@@ -157,7 +108,7 @@ Conducts a stratified 80/20 train/test split.
 Fits a StandardScaler on training data.
 Trains Logistic Regression and Random Forest Classifier with class_weight='balanced'.
 Evaluates test set performance across Precision, Recall, F1-Score, and ROC-AUC.
-Saves all 8 model bundles to Model/saved_models/.
+Saves the trained model artifacts to `Model/saved_models/`.
 Benchmark Results (Hold-out Test Set)
 Metric	Logistic Regression (Balanced)	Random Forest (Balanced)
 Accuracy	~97.5%	~99.9%
@@ -167,13 +118,39 @@ F1-Score	~0.15 – 0.18	~0.85 – 0.91
 ROC-AUC	~0.970	~0.985
 Note: Random Forest achieves superior F1-Score and precision, minimizing customer-facing false alarms while retaining strong fraud recall.
 
+## 🧾 Transaction Prediction Inputs
+
+The Streamlit prediction form follows the same feature structure used by the trained model:
+
+- **Time** → seconds elapsed since the first transaction in the dataset.
+- **V1–V28** → PCA-transformed/anonymized numerical features. These are **not** card number, CVV, PIN, city, or customer details. Their values come from the dataset/model feature pipeline.
+- **Amount** → transaction amount.
+- **Class** → target column in the dataset (0 = Legitimate, 1 = Fraud). Do not enter Class for a new prediction; the model predicts it.
+
+### V1–V28 input groups
+
+The dashboard divides the 28 PCA features into four groups only for easier entry:
+
+1. **Group 1:** V1–V7
+2. **Group 2:** V8–V14
+3. **Group 3:** V15–V21
+4. **Group 4:** V22–V28
+
+Each V-feature must contain the **actual numeric value from a transaction row in the same dataset format**. Do not guess or enter random V-values, because the prediction may not be meaningful.
+
+For a quick test, use the dashboard's **Fill Legitimate Demo** or **Fill High-Risk Fraud Demo** preset. Use **Reset / Clear Inputs** to return the form to neutral values.
+
+**Model input order:** Time, V1, V2, V3, V4, V5, V6, V7, V8, V9, V10, V11, V12, V13, V14, V15, V16, V17, V18, V19, V20, V21, V22, V23, V24, V25, V26, V27, V28, Amount
+
+> **Important:** V1–V28 are PCA-transformed features used for privacy-preserving machine learning. Their individual real-world meanings are not directly interpretable from the raw dataset.
+
 💻 Interactive Web Dashboard
 Launch the Streamlit web dashboard:
 
 bash
 
-streamlit run app.py
-(Or alternatively: streamlit run App/app.py)
+streamlit run app/app.py
+
 
 Once started, open your browser at http://localhost:8501.
 
