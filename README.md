@@ -49,12 +49,9 @@ Data Visualization: Matplotlib, Seaborn
 Web Interface: Streamlit
 
 ⚙️ Installation & Local Setup
-1. Clone the repository
-Bash
-git clone [https://github.com/RadiyaBhavesh/Credit-Card-Fraud-Detection-System.git](https://github.com/RadiyaBhavesh/Credit-Card-Fraud-Detection-System.git)
-cd Credit-Card-Fraud-Detection-System
-2. Create a virtual environment (Optional but Recommended)
-Bash
+
+1. Create a virtual environment (Optional but Recommended)
+2.Bash
 # Windows
 python -m venv venv
 venv\Scripts\activate
